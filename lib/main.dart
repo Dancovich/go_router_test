@@ -14,28 +14,20 @@ class MainApp extends StatelessWidget {
       GoRoute(
         path: '/',
         builder: (context, state) => const InitialPage(),
-      ),
-      GoRoute(
-        path: '/a',
-        builder: (context, state) => const PageA(),
-      ),
-      GoRoute(
-        path: '/b',
-        builder: (context, state) => const PageB(),
         routes: [
-          ShellRoute(
-            builder: (context, state, child) {
-              debugPrint('Building shell around subroute');
-              return ScaffoldWithNav(child: child);
-            },
+          GoRoute(
+            path: 'a',
+            builder: (context, state) => const PageA(),
             routes: [
               GoRoute(
-                path: 'c',
-                builder: (context, state) => const PageC(),
-              ),
-              GoRoute(
-                path: 'd',
-                builder: (context, state) => const PageD(),
+                path: 'b',
+                builder: (context, state) => const PageB(),
+                routes: [
+                  GoRoute(
+                    path: 'c',
+                    builder: (context, state) => const PageC(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -48,6 +40,14 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: _routeConfig,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+          },
+        ),
+      ),
     );
   }
 }
@@ -84,7 +84,7 @@ class PageA extends StatelessWidget {
           const Expanded(child: Center(child: Text('Page A'))),
           Center(
             child: ElevatedButton(
-              onPressed: () => context.go('/b'),
+              onPressed: () => context.go('/a/b'),
               child: const Text('Go to B'),
             ),
           ),
@@ -105,7 +105,7 @@ class PageB extends StatelessWidget {
           const Expanded(child: Center(child: Text('Page B'))),
           Center(
             child: ElevatedButton(
-              onPressed: () => context.go('/b/c'),
+              onPressed: () => context.go('/a/b/c'),
               child: const Text('Go to C'),
             ),
           ),
@@ -120,39 +120,8 @@ class PageC extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          const Expanded(child: Center(child: Text('Page C'))),
-          Center(
-            child: ElevatedButton(
-              onPressed: () => context.go('/b/d'),
-              child: const Text('Go to D'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PageD extends StatelessWidget {
-  const PageD({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          const Expanded(child: Center(child: Text('Page D'))),
-          Center(
-            child: ElevatedButton(
-              onPressed: () => context.go('/b/c'),
-              child: const Text('Go to C'),
-            ),
-          ),
-        ],
-      ),
+    return const Scaffold(
+      body: Center(child: Text('Page C')),
     );
   }
 }
